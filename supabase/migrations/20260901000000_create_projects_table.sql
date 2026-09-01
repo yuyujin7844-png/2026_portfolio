@@ -50,7 +50,7 @@ values
   (
     'Bloom Champagne',
     '논알코올 스파클링 브랜드의 무드를 담은 브랜드 랜딩페이지',
-    array['React','MUI','Vite','Supabase'],
+    array['React','Supabase','PostgreSQL','CSS3'],
     'https://yuyujin7844-png.github.io/yujin_portfolio/Bloom_Champagne/',
     'https://github.com/yuyujin7844-png/yujin_portfolio/tree/main/Bloom_Champagne',
     'https://image.thum.io/get/https://yuyujin7844-png.github.io/yujin_portfolio/Bloom_Champagne/',
@@ -60,7 +60,7 @@ values
   (
     'Movie All Day',
     '상영관·상영시간표를 골라 좌석까지 예매하는 영화 티켓 예약 앱',
-    array['React','MUI','Vite','Supabase'],
+    array['React','Supabase','PostgreSQL','CSS3'],
     'https://yuyujin7844-png.github.io/movie_app/',
     'https://github.com/yuyujin7844-png/movie_app',
     'https://image.thum.io/get/https://yuyujin7844-png.github.io/movie_app/',
@@ -70,7 +70,7 @@ values
   (
     'Moviestagram',
     '영화·공연 감상을 사진과 함께 공유하는 미니 SNS',
-    array['React','MUI','Vite','Supabase'],
+    array['React','Supabase','PostgreSQL','CSS3'],
     'https://yuyujin7844-png.github.io/yujin_portfolio/mini_sns/',
     'https://github.com/yuyujin7844-png/yujin_portfolio/tree/main/mini_sns',
     'https://image.thum.io/get/https://yuyujin7844-png.github.io/yujin_portfolio/mini_sns/',
