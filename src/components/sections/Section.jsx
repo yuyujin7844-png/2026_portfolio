@@ -1,7 +1,13 @@
 import PropTypes from 'prop-types'
 import { Box, Container, Typography } from '@mui/material'
 
-function Section({ id, title, bgcolor = 'background.default', children }) {
+function Section({
+  id,
+  title,
+  bgcolor = 'background.default',
+  maxWidth = 'sm',
+  children,
+}) {
   return (
     <Box
       id={id}
@@ -13,7 +19,7 @@ function Section({ id, title, bgcolor = 'background.default', children }) {
       }}
     >
       <Container
-        maxWidth="sm"
+        maxWidth={maxWidth}
         sx={{
           textAlign: 'center',
           display: 'flex',
@@ -38,6 +44,7 @@ Section.propTypes = {
   id: PropTypes.string,
   title: PropTypes.string.isRequired,
   bgcolor: PropTypes.string,
+  maxWidth: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl', false]),
   children: PropTypes.node,
 }
 

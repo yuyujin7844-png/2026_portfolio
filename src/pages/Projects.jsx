@@ -71,7 +71,7 @@ function Projects() {
                   <Skeleton
                     key={index}
                     variant="rounded"
-                    height={320}
+                    height={440}
                     sx={{ borderRadius: 3 }}
                   />
                 ))

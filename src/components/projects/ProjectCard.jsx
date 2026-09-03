@@ -48,6 +48,8 @@ function ProjectCard({ project }) {
       elevation={0}
       sx={{
         height: '100%',
+        // 썸네일(2) : 본문(1) 비율을 유지하기 위한 최소 높이
+        minHeight: { xs: 420, sm: 440 },
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 3,
@@ -77,12 +79,13 @@ function ProjectCard({ project }) {
           alignItems: 'stretch',
         }}
       >
-        {/* 썸네일 */}
+        {/* 썸네일 : 카드 안에서 본문(1) 대비 2배 영역을 차지 */}
         <Box
           sx={{
             position: 'relative',
             width: '100%',
-            aspectRatio: '16 / 10',
+            flex: '2 1 0',
+            minHeight: 0,
             bgcolor: 'secondary.main',
             overflow: 'hidden',
           }}
@@ -140,7 +143,15 @@ function ProjectCard({ project }) {
           )}
         </Box>
 
-        <CardContent sx={{ flexGrow: 1, width: '100%', p: 2.5 }}>
+        <CardContent
+          sx={{
+            flex: '1 1 0',
+            minHeight: 0,
+            width: '100%',
+            p: 2.5,
+            overflow: 'hidden',
+          }}
+        >
           <Stack spacing={1.25} sx={{ height: '100%' }}>
             <Stack
               direction="row"
