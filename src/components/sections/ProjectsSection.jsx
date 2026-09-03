@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react'
 import { Alert, Box, Skeleton, Typography } from '@mui/material'
 import Section from './Section'
 import ProjectCard from '../projects/ProjectCard'
+import Reveal from '../Reveal'
 import { fetchProjects } from '../../lib/projects'
 
 // 로딩 중 보여줄 스켈레톤 카드 개수
 const SKELETON_COUNT = 4
 
-// Projects 탭과 동일한 카드 그리드 (모바일 1 · 태블릿 2 · 데스크톱 4열)
+// leoparpeix.com "Selected Projects" 참고 — 데스크톱 2열, 카드는 절반 크기로 컴팩트하게
 const GRID_COLUMNS = {
   xs: '1fr', // 모바일: 1열
-  sm: 'repeat(2, 1fr)', // 태블릿: 2열
-  md: 'repeat(4, 1fr)', // 데스크톱: 4열
+  sm: 'repeat(2, 1fr)', // 태블릿·데스크톱: 2열
 }
 
 function ProjectsSection() {
@@ -37,16 +37,20 @@ function ProjectsSection() {
   }, [])
 
   return (
-    <Section id="projects" title="Projects" bgcolor="background.paper" maxWidth="lg">
-      <Typography variant="h4" color="primary.main" gutterBottom>
-        대표 프로젝트
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        직접 기획하고 만든 프로젝트들입니다. 카드를 누르면 배포된 사이트로 이동해요.
-      </Typography>
+    <Section id="projects" title="Project" bgcolor="background.paper" maxWidth="md" align="left">
+      <Reveal>
+        <Typography variant="h3" sx={{ color: 'text.primary', mb: 1 }}>
+          Selected Works
+        </Typography>
+      </Reveal>
+      <Reveal delay={80}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mb: 5 }}>
+          직접 기획하고 만든 작업들입니다. 카드를 누르면 배포된 사이트로 이동해요.
+        </Typography>
+      </Reveal>
 
       {error && (
-        <Alert severity="error" sx={{ maxWidth: 480, mx: 'auto', mb: 3 }}>
+        <Alert severity="error" sx={{ width: '100%', mb: 3 }}>
           프로젝트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </Alert>
       )}
@@ -57,9 +61,8 @@ function ProjectsSection() {
             width: '100%',
             display: 'grid',
             gridTemplateColumns: GRID_COLUMNS,
-            gap: { xs: 2.5, md: 3 },
+            gap: { xs: 3, md: 4 },
             alignItems: 'stretch',
-            textAlign: 'left',
           }}
         >
           {loading
@@ -67,12 +70,16 @@ function ProjectsSection() {
                 <Skeleton
                   key={index}
                   variant="rounded"
-                  height={440}
-                  sx={{ borderRadius: 3 }}
+                  height={300}
+                  sx={{ borderRadius: 2 }}
                 />
               ))
-            : projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+            : projects.map((project, index) => (
+                <Reveal key={project.id} delay={(index % 2) * 90} sx={{ display: 'flex' }}>
+                  <Box sx={{ flex: 1 }}>
+                    <ProjectCard project={project} index={index} />
+                  </Box>
+                </Reveal>
               ))}
         </Box>
       )}
@@ -81,7 +88,7 @@ function ProjectsSection() {
         <Typography
           variant="body2"
           color="text.disabled"
-          sx={{ textAlign: 'center', py: 4 }}
+          sx={{ textAlign: 'center', py: 4, width: '100%' }}
         >
           아직 등록된 프로젝트가 없어요.
         </Typography>

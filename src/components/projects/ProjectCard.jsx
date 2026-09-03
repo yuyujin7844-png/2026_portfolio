@@ -5,39 +5,38 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  Chip,
   CircularProgress,
   Skeleton,
   Stack,
   Typography,
 } from '@mui/material'
+import NorthEastRoundedIcon from '@mui/icons-material/NorthEastRounded'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import ImageNotSupportedRoundedIcon from '@mui/icons-material/ImageNotSupportedRounded'
 
-function formatWorkDate(value) {
+function formatYear(value) {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+  return String(date.getFullYear())
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, index = 0 }) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [opening, setOpening] = useState(false)
 
-  const workDate = formatWorkDate(project.work_date)
+  const year = formatYear(project.work_date)
+  const number = String(index + 1).padStart(2, '0')
 
   const handleOpenDetail = () => {
     if (!project.detail_url) return
     setOpening(true)
     window.open(project.detail_url, '_blank', 'noopener,noreferrer')
-    // 새 탭 전환 동안 잠깐 로딩 피드백을 보여주고 원상 복귀
     window.setTimeout(() => setOpening(false), 1200)
   }
 
   const handleOpenGithub = (event) => {
-    // 카드 클릭(detail 열기)으로 이벤트가 전파되지 않도록 차단
     event.stopPropagation()
     if (!project.github_url) return
     window.open(project.github_url, '_blank', 'noopener,noreferrer')
@@ -48,25 +47,23 @@ function ProjectCard({ project }) {
       elevation={0}
       sx={{
         height: '100%',
-        // 썸네일(2) : 본문(1) 비율을 유지하기 위한 최소 높이
-        minHeight: { xs: 420, sm: 440 },
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 3,
+        borderRadius: 2,
         bgcolor: 'background.default',
         border: '1px solid',
-        borderColor: 'secondary.main',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        borderColor: 'divider',
+        overflow: 'hidden',
+        transition: 'transform 0.28s cubic-bezier(0.22,1,0.36,1), box-shadow 0.28s ease',
         '@media (hover: hover)': {
           '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 12px 28px rgba(232, 58, 41, 0.18)',
+            transform: 'scale(1.03)',
+            boxShadow: '0 16px 34px rgba(58, 44, 35, 0.16)',
           },
+          '&:hover .project-thumb': { transform: 'scale(1.06)' },
+          '&:hover .project-arrow': { opacity: 1, transform: 'none' },
         },
-        // 모바일 터치 피드백
-        '&:active': {
-          transform: 'scale(0.985)',
-        },
+        '&:active': { transform: 'scale(0.99)' },
       }}
     >
       <CardActionArea
@@ -79,14 +76,13 @@ function ProjectCard({ project }) {
           alignItems: 'stretch',
         }}
       >
-        {/* 썸네일 : 카드 안에서 본문(1) 대비 2배 영역을 차지 */}
+        {/* 썸네일 — 16:10, 카드보다 크게 확대돼 크롭 */}
         <Box
           sx={{
             position: 'relative',
             width: '100%',
-            flex: '2 1 0',
-            minHeight: 0,
-            bgcolor: 'secondary.main',
+            aspectRatio: '16 / 10',
+            bgcolor: 'background.paper',
             overflow: 'hidden',
           }}
         >
@@ -103,7 +99,7 @@ function ProjectCard({ project }) {
               sx={{ position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center' }}
               spacing={1}
             >
-              <ImageNotSupportedRoundedIcon sx={{ color: 'primary.light', fontSize: 36 }} />
+              <ImageNotSupportedRoundedIcon sx={{ color: 'primary.light', fontSize: 32 }} />
               <Typography variant="caption" color="text.secondary">
                 미리보기를 불러오지 못했어요
               </Typography>
@@ -111,6 +107,7 @@ function ProjectCard({ project }) {
           ) : (
             <Box
               component="img"
+              className="project-thumb"
               src={project.thumbnail_url}
               alt={`${project.title} 미리보기`}
               loading="lazy"
@@ -122,12 +119,11 @@ function ProjectCard({ project }) {
                 objectFit: 'cover',
                 display: 'block',
                 opacity: imageLoaded ? 1 : 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1)',
               }}
             />
           )}
 
-          {/* 클릭 피드백: 로딩 표시 */}
           {opening && (
             <Stack
               sx={{
@@ -135,93 +131,104 @@ function ProjectCard({ project }) {
                 inset: 0,
                 alignItems: 'center',
                 justifyContent: 'center',
-                bgcolor: 'rgba(255, 254, 239, 0.72)',
+                bgcolor: 'rgba(250, 246, 239, 0.72)',
               }}
             >
-              <CircularProgress size={30} sx={{ color: 'primary.main' }} />
+              <CircularProgress size={28} sx={{ color: 'primary.main' }} />
             </Stack>
           )}
         </Box>
 
-        <CardContent
-          sx={{
-            flex: '1 1 0',
-            minHeight: 0,
-            width: '100%',
-            p: 2.5,
-            overflow: 'hidden',
-          }}
-        >
-          <Stack spacing={1.25} sx={{ height: '100%' }}>
+        <CardContent sx={{ width: '100%', p: 2.5 }}>
+          <Stack spacing={1}>
             <Stack
               direction="row"
               spacing={1}
               sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
             >
-              <Typography variant="h6" color="primary.main" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-                {project.title}
+              <Typography
+                variant="caption"
+                sx={{ color: 'secondary.dark', letterSpacing: '0.12em', fontWeight: 600 }}
+              >
+                {number}
+                {year ? ` · ${year}` : ''}
               </Typography>
-              {workDate && (
-                <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>
-                  {workDate}
-                </Typography>
-              )}
+              <NorthEastRoundedIcon
+                className="project-arrow"
+                sx={{
+                  fontSize: 16,
+                  color: 'primary.main',
+                  opacity: 0,
+                  transform: 'translate(-4px, 4px)',
+                  transition: 'opacity 0.25s ease, transform 0.25s ease',
+                }}
+              />
             </Stack>
 
             <Typography
-              variant="body2"
-              color="text.secondary"
+              variant="h5"
               sx={{
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
+                fontFamily: '"Cormorant Garamond", "Noto Serif KR", Georgia, serif',
+                color: 'text.primary',
+                lineHeight: 1.25,
               }}
             >
-              {project.description}
+              {project.title}
             </Typography>
 
-            <Stack
-              direction="row"
-              spacing={0.75}
-              useFlexGap
-              sx={{ flexWrap: 'wrap', mt: 'auto', pt: 0.5 }}
-            >
-              {project.tech_stack?.map((tech) => (
-                <Chip
-                  key={tech}
-                  label={tech}
-                  size="small"
-                  sx={{
-                    bgcolor: 'secondary.main',
-                    color: 'secondary.contrastText',
-                    fontWeight: 600,
-                    fontSize: '0.7rem',
-                  }}
-                />
-              ))}
-            </Stack>
+            {project.description && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {project.description}
+              </Typography>
+            )}
+
+            {project.tech_stack?.length > 0 && (
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.disabled', letterSpacing: '0.03em' }}
+              >
+                {project.tech_stack.join(' · ')}
+              </Typography>
+            )}
           </Stack>
         </CardContent>
       </CardActionArea>
 
-      {/* GitHub 버튼 */}
       {project.github_url && (
         <Box sx={{ px: 2.5, pb: 2 }}>
-          <Chip
-            icon={<GitHubIcon sx={{ fontSize: 18 }} />}
-            label="GitHub"
-            clickable
+          <Box
+            component="button"
+            type="button"
             onClick={handleOpenGithub}
-            variant="outlined"
             sx={{
-              borderColor: 'primary.main',
-              color: 'primary.main',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 1.25,
+              py: 0.5,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 999,
+              bgcolor: 'transparent',
+              color: 'text.secondary',
+              font: 'inherit',
+              fontSize: '0.75rem',
               fontWeight: 600,
-              '& .MuiChip-icon': { color: 'primary.main' },
-              '&:hover': { bgcolor: 'secondary.main' },
+              '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
             }}
-          />
+          >
+            <GitHubIcon sx={{ fontSize: 15 }} />
+            GitHub
+          </Box>
         </Box>
       )}
     </Card>
@@ -239,6 +246,7 @@ ProjectCard.propTypes = {
     thumbnail_url: PropTypes.string,
     work_date: PropTypes.string,
   }).isRequired,
+  index: PropTypes.number,
 }
 
 export default ProjectCard

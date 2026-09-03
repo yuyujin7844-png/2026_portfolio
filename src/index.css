@@ -1,16 +1,65 @@
 :root {
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', 'Noto Sans KR', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1.6;
   font-weight: 400;
+  color: #3a2c23;
+  background-color: #faf6ef;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #FFFEEF;
+  background-color: #faf6ef;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
+}
+
+/* 종이비행기 커스텀 커서 활성 시 기본 커서 숨김 (정밀 포인터 한정) */
+@media (hover: hover) and (pointer: fine) {
+  body.ppc-on,
+  body.ppc-on * {
+    cursor: none !important;
+  }
+}
+
+/* Hero 스크롤 유도 라인 */
+@keyframes hero-scroll-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>종이비행기 커서 · 프로토타입</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;600&family=Noto+Sans+KR:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cream: #faf6ef;
+        --cream-deep: #f3ebdd;
+        --brown: #6b4a38;
+        --brown-dark: #4a3226;
+        --gold: #c9a96a;
+        --text: #3a2c23;
+        --muted: #7a6a5d;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        min-height: 100vh;
+        background: var(--cream);
+        color: var(--text);
+        font-family: 'Inter', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* 기본 커서 숨김 — 마우스(정밀 포인터) 환경에서만 */
+      @media (hover: hover) and (pointer: fine) {
+        * {
+          cursor: none !important;
+        }
+      }
+
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 12vh 24px 16vh;
+      }
+      h1 {
+        font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
+        font-weight: 500;
+        font-size: clamp(2.2rem, 6vw, 3.4rem);
+        line-height: 1.15;
+        margin: 0 0 12px;
+        color: var(--brown-dark);
+      }
+      .lede {
+        color: var(--muted);
+        margin: 0 0 40px;
+        max-width: 46ch;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin: 24px 0;
+      }
+      a {
+        color: var(--brown);
+        text-underline-offset: 3px;
+      }
+      .demo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 22px;
+        border: 1.5px solid var(--gold);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--brown-dark);
+        font: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.25s ease, transform 0.25s var(--ease);
+      }
+      .demo:hover {
+        background: rgba(201, 169, 106, 0.16);
+        transform: translateY(-2px);
+      }
+      .card {
+        margin-top: 40px;
+        padding: 28px;
+        background: var(--cream-deep);
+        border: 1px solid rgba(58, 44, 35, 0.12);
+        border-radius: 12px;
+      }
+      .hint {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      .note {
+        margin-top: 64px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 2;
+      }
+      code {
+        background: rgba(58, 44, 35, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      /* ────────────── 커스텀 커서 ────────────── */
+      .cursor {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        z-index: 9999;
+        pointer-events: none;
+        will-change: transform;
+      }
+      .cursor__plane {
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: var(--brown);
+        transition: filter 0.25s ease;
+      }
+      /* 클릭 순간 짧은 글로우 */
+      .cursor--glow .cursor__plane {
+        filter: drop-shadow(0 0 6px rgba(201, 169, 106, 0.85));
+      }
+
+      /* 호버 링: 위치는 즉시(지연 없음), 나타남/사라짐만 0.2초 */
+      .cursor__ring {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 14px;
+        height: 14px;
+        margin: -7px 0 0 -7px;
+        z-index: 9998;
+        pointer-events: none;
+        will-change: transform;
+      }
+      .cursor__ring-inner {
+        position: absolute;
+        inset: 0;
+        border: 1.5px solid var(--gold);
+        border-radius: 50%;
+        background: none;
+        opacity: 0;
+        transform: scale(0.6);
+        transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+      }
+      .cursor__ring--on .cursor__ring-inner {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* 클릭 확산 링 (동적 생성) */
+      .ripple {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 14px;
+        height: 14px;
+        margin: -7px 0 0 -7px;
+        border: 1.5px solid var(--gold);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9997;
+        opacity: 1;
+        will-change: transform, opacity;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cursor__ring-inner {
+          transition: opacity 0.01s linear;
+          transform: none;
+        }
+        .cursor__ring--on .cursor__ring-inner {
+          transform: none;
+        }
+      }
+      /* 터치 기기: 커서 요소 자체를 숨김 */
+      @media (hover: none), (pointer: coarse) {
+        .cursor,
+        .cursor__ring {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>종이비행기 커서</h1>
+      <p class="lede">
+        마우스를 움직여 보세요. 링크·버튼에 올리면 샴페인 골드 링이 나타나고,
+        클릭하면 링이 확산됩니다.
+      </p>
+
+      <div class="row">
+        <button class="demo" type="button">버튼 호버해보기</button>
+        <a class="demo" href="#test">링크 호버해보기</a>
+        <a href="#test">일반 텍스트 링크</a>
+      </div>
+
+      <div class="card cursor-hover">
+        <strong>.cursor-hover</strong> 클래스가 붙은 영역
+        <div class="hint">
+          버튼·링크가 아니어도 이 클래스를 주면 호버 링이 뜹니다.
+        </div>
+      </div>
+
+      <p class="note">
+        · 평상시: 종이비행기(20px, 브라운)만 표시<br />
+        · 호버: 골드 링 지름 14px · 선 1.5px · 채움 없음 — 0.2초 페이드/스케일 인<br />
+        · 클릭: 링 14→40px 확산 + 투명도 1→0, 0.4초 · 비행기에 짧은 글로우<br />
+        · easing <code>cubic-bezier(.22, 1, .36, 1)</code> — 움직임에 약간의 관성<br />
+        · <code>prefers-reduced-motion</code> · 터치 기기에서는 자동 비활성
+      </p>
+    </div>
+
+    <!-- 커서 요소 -->
+    <div class="cursor" id="cursor">
+      <svg class="cursor__plane" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path
+          d="M21.6 3.2 2.8 11.1c-.9.38-.83 1.63.1 1.9l6.06 1.83 2.32 6.28c.32.87 1.53.95 1.96.13l8.9-16.9c.42-.8-.4-1.7-1.24-1.37z"
+        />
+      </svg>
+    </div>
+    <div class="cursor__ring" id="cursorRing">
+      <span class="cursor__ring-inner"></span>
+    </div>
+
+    <script>
+      ;(function () {
+        var reduceMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches
+        var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+        if (!fine) return // 터치 환경: 기본 커서 유지
+
+        var cursor = document.getElementById('cursor')
+        var ring = document.getElementById('cursorRing')
+
+        var mouseX = window.innerWidth / 2
+        var mouseY = window.innerHeight / 2
+        var x = mouseX
+        var y = mouseY
+        var angle = 0
+        var EASE = 0.15 // 낮을수록 관성이 큼
+
+        document.addEventListener('mousemove', function (e) {
+          mouseX = e.clientX
+          mouseY = e.clientY
+          // 링은 지연 없이 실제 좌표를 따라감
+          ring.style.transform = 'translate(' + mouseX + 'px,' + mouseY + 'px)'
+        })
+
+        function render() {
+          if (reduceMotion) {
+            x = mouseX
+            y = mouseY
+          } else {
+            var dx = mouseX - x
+            var dy = mouseY - y
+            x += dx * EASE
+            y += dy * EASE
+            // 이동 방향으로 살짝 기울이기 (±12°)
+            var target = Math.max(-12, Math.min(12, dx * 0.6))
+            angle += (target - angle) * 0.12
+          }
+          cursor.style.transform =
+            'translate(' + x + 'px,' + y + 'px) rotate(' + angle.toFixed(2) + 'deg)'
+          requestAnimationFrame(render)
+        }
+        requestAnimationFrame(render)
+
+        // ── 호버 링 on/off ──
+        var HOVER_SEL =
+          'a, button, [role="button"], input[type="submit"], .cursor-hover'
+        document.addEventListener('mouseover', function (e) {
+          if (e.target.closest && e.target.closest(HOVER_SEL)) {
+            ring.classList.add('cursor__ring--on')
+          }
+        })
+        document.addEventListener('mouseout', function (e) {
+          if (e.target.closest && e.target.closest(HOVER_SEL)) {
+            ring.classList.remove('cursor__ring--on')
+          }
+        })
+
+        // ── 클릭: 글로우 + 확산 링 ──
+        document.addEventListener('mousedown', function (e) {
+          cursor.classList.add('cursor--glow')
+          window.setTimeout(function () {
+            cursor.classList.remove('cursor--glow')
+          }, 250)
+
+          if (reduceMotion) return
+
+          var r = document.createElement('div')
+          r.className = 'ripple'
+          r.style.transform =
+            'translate(' + e.clientX + 'px,' + e.clientY + 'px) scale(1)'
+          document.body.appendChild(r)
+
+          requestAnimationFrame(function () {
+            r.style.transition =
+              'transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease-out'
+            r.style.transform =
+              'translate(' +
+              e.clientX +
+              'px,' +
+              e.clientY +
+              'px) scale(' +
+              40 / 14 +
+              ')'
+            r.style.opacity = '0'
+          })
+          window.setTimeout(function () {
+            r.remove()
+          }, 460)
+        })
+
+        // 창 밖으로 나가면 커서 숨김
+        document.addEventListener('mouseleave', function () {
+          cursor.style.opacity = '0'
+          ring.style.opacity = '0'
+        })
+        document.addEventListener('mouseenter', function () {
+          cursor.style.opacity = '1'
+          ring.style.opacity = '1'
+        })
+      })()
+    </script>
+  </body>
+</html>

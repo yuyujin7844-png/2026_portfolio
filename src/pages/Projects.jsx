@@ -5,8 +5,7 @@ import { fetchProjects } from '../lib/projects'
 
 const GRID_COLUMNS = {
   xs: '1fr', // 모바일: 1열
-  sm: 'repeat(2, 1fr)', // 태블릿: 2열
-  md: 'repeat(4, 1fr)', // 데스크톱: 4열
+  sm: 'repeat(2, 1fr)', // 태블릿·데스크톱: 2열
 }
 
 function Projects() {
@@ -41,18 +40,21 @@ function Projects() {
         px: 2,
       }}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 7 } }}>
-          <Typography variant="h3" color="primary.main" gutterBottom>
-            Projects
+      <Container maxWidth="md">
+        <Box sx={{ mb: { xs: 5, md: 7 } }}>
+          <Typography variant="overline" sx={{ color: 'primary.light', letterSpacing: '0.18em' }}>
+            Project
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            직접 기획하고 만든 프로젝트들입니다. 카드를 누르면 배포된 사이트로 이동해요.
+          <Typography variant="h3" sx={{ color: 'text.primary', mt: 1 }}>
+            Selected Works
+          </Typography>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1.5 }}>
+            직접 기획하고 만든 작업들입니다. 카드를 누르면 배포된 사이트로 이동해요.
           </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ maxWidth: 480, mx: 'auto' }}>
+          <Alert severity="error" sx={{ mb: 3 }}>
             프로젝트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
           </Alert>
         )}
@@ -62,7 +64,7 @@ function Projects() {
             sx={{
               display: 'grid',
               gridTemplateColumns: GRID_COLUMNS,
-              gap: { xs: 2.5, md: 3 },
+              gap: { xs: 3, md: 4 },
               alignItems: 'stretch',
             }}
           >
@@ -71,12 +73,12 @@ function Projects() {
                   <Skeleton
                     key={index}
                     variant="rounded"
-                    height={440}
-                    sx={{ borderRadius: 3 }}
+                    height={300}
+                    sx={{ borderRadius: 2 }}
                   />
                 ))
-              : projects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
+              : projects.map((project, index) => (
+                  <ProjectCard key={project.id} project={project} index={index} />
                 ))}
           </Box>
         )}

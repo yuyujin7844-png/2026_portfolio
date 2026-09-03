@@ -6,31 +6,34 @@ function Section({
   title,
   bgcolor = 'background.default',
   maxWidth = 'sm',
+  align = 'center',
   children,
 }) {
+  const left = align === 'left'
+
   return (
     <Box
       id={id}
       component="section"
       sx={{
         bgcolor,
-        py: { xs: 8, md: 12 },
+        py: { xs: 10, md: 16 },
         px: 2,
       }}
     >
       <Container
         maxWidth={maxWidth}
         sx={{
-          textAlign: 'center',
+          textAlign: left ? 'left' : 'center',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          alignItems: left ? 'flex-start' : 'center',
           gap: 2,
         }}
       >
         <Typography
           variant="overline"
-          sx={{ color: 'primary.main', fontWeight: 700, letterSpacing: 2 }}
+          sx={{ color: 'primary.light', fontWeight: 700, letterSpacing: '0.18em' }}
         >
           {title}
         </Typography>
@@ -45,6 +48,7 @@ Section.propTypes = {
   title: PropTypes.string.isRequired,
   bgcolor: PropTypes.string,
   maxWidth: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl', false]),
+  align: PropTypes.oneOf(['center', 'left']),
   children: PropTypes.node,
 }
 
