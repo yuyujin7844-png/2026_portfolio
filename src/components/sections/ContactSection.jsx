@@ -19,17 +19,8 @@ import {
 } from '../../lib/guestbook'
 
 const EMAIL = 'yuyujin7844@gmail.com'
-const RESUME_URL = `${import.meta.env.BASE_URL}resume.pdf`
 
 const LINKS = [
-  {
-    key: 'resume',
-    icon: DescriptionRoundedIcon,
-    label: 'Resume',
-    value: 'PDF 이력서 열기',
-    href: RESUME_URL,
-    external: true,
-  },
   {
     key: 'instagram',
     icon: InstagramIcon,
@@ -115,7 +106,7 @@ function ContactSection() {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [likedIds, setLikedIds] = useState(() => getLikedEntryIds())
-  const [copied, setCopied] = useState(false)
+  const [toast, setToast] = useState('')
 
   useEffect(() => {
     fetchGuestbookEntries()
@@ -132,11 +123,14 @@ function ContactSection() {
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(EMAIL)
-      setCopied(true)
+      setToast('이메일 주소를 복사했어요')
     } catch {
       window.location.href = `mailto:${EMAIL}`
     }
   }
+
+  // 이력서는 아직 준비 중 — 파일을 public/resume.pdf 로 추가하면 이 행을 링크로 교체
+  const handleResume = () => setToast('이력서는 곧 추가할 예정이에요')
 
   const handleCreate = async (payload) => {
     const newEntry = await createGuestbookEntry(payload)
@@ -209,6 +203,13 @@ function ContactSection() {
           value={EMAIL}
           onClick={handleCopyEmail}
           hint="클릭하면 복사"
+        />
+        <ContactRow
+          icon={DescriptionRoundedIcon}
+          label="Resume"
+          value="PDF 이력서"
+          onClick={handleResume}
+          hint="준비 중"
         />
         {LINKS.map(({ key, icon, label, value, href, external }) => (
           <ContactRow
@@ -306,10 +307,10 @@ function ContactSection() {
       </Stack>
 
       <Snackbar
-        open={copied}
+        open={Boolean(toast)}
         autoHideDuration={2000}
-        onClose={() => setCopied(false)}
-        message="이메일 주소를 복사했어요"
+        onClose={() => setToast('')}
+        message={toast}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Section>

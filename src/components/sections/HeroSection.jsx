@@ -38,6 +38,17 @@ function HeroSection() {
       <Container maxWidth="md" sx={{ position: 'relative' }}>
         <Reveal delay={0}>
           <Typography
+            variant="overline"
+            sx={{
+              color: 'primary.light',
+              letterSpacing: '0.2em',
+              display: 'block',
+              mb: { xs: 2, md: 3 },
+            }}
+          >
+            Yujin&rsquo;s Portfolio
+          </Typography>
+          <Typography
             variant="h1"
             sx={{ color: 'text.primary', mb: { xs: 3, md: 4 } }}
           >
